@@ -2,14 +2,21 @@
 module.exports = function( Release ) {
 
 	var
-		files = [ "dist/jquery.js", "dist/jquery.min.js", "dist/jquery.min.map" ],
+		files = [
+			"dist/jquery.js",
+			"dist/jquery.min.js",
+			"dist/jquery.min.map",
+			"dist/jquery.slim.js",
+			"dist/jquery.slim.min.js",
+			"dist/jquery.slim.min.map"
+		],
 		cdn = require( "./release/cdn" ),
 		dist = require( "./release/dist" ),
 		ensureSizzle = require( "./release/ensure-sizzle" ),
 
 		npmTags = Release.npmTags;
 
-	Release.define({
+	Release.define( {
 		npmPublish: true,
 		issueTracker: "github",
 		/**
@@ -27,6 +34,11 @@ module.exports = function( Release ) {
 		 */
 		generateArtifacts: function( callback ) {
 			Release.exec( "grunt", "Grunt command failed" );
+			Release.exec(
+				"grunt custom:-ajax,-effects,-deprecated --filename=jquery.slim.js && " +
+					"grunt remove_map_comment --filename=jquery.slim.js",
+				"Grunt custom failed"
+			);
 			cdn.makeReleaseCopies( Release );
 			callback( files );
 		},
@@ -36,6 +48,7 @@ module.exports = function( Release ) {
 		 * for publishing the distribution repo instead
 		 */
 		npmTags: function() {
+
 			// origRepo is not defined if dist was skipped
 			Release.dir.repo = Release.dir.origRepo || Release.dir.repo;
 			return npmTags();
@@ -46,14 +59,15 @@ module.exports = function( Release ) {
 		 */
 		dist: function( callback ) {
 			cdn.makeArchives( Release, function() {
-				dist( Release, callback );
-			});
+				dist( Release, files, callback );
+			} );
 		}
-	});
+	} );
 };
 
 module.exports.dependencies = [
 	"archiver@0.14.2",
 	"shelljs@0.2.6",
-	"npm@2.3.0"
+	"npm@2.3.0",
+	"chalk@1.1.1"
 ];
