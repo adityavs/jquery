@@ -19,13 +19,11 @@ QUnit.module( "animation", {
 		this._oldInterval = jQuery.fx.interval;
 		jQuery.fx.step = {};
 		jQuery.fx.interval = 10;
-		jQuery.now = Date.now;
 		jQuery.Animation.prefilters = [ defaultPrefilter ];
 		jQuery.Animation.tweeners = { "*": [ defaultTweener ] };
 	},
 	teardown: function() {
 		this.sandbox.restore();
-		jQuery.now = Date.now;
 		jQuery.fx.stop();
 		jQuery.fx.interval = this._oldInterval;
 		window.requestAnimationFrame = oldRaf;
@@ -169,7 +167,7 @@ QUnit.test( "Animation.prefilter - prefilter return hooks", function( assert ) {
 	);
 	assert.equal( TweenSpy.callCount, 0, "Returning something never creates tweens" );
 
-	// Test overriden usage on queues:
+	// Test overridden usage on queues:
 	prefilter.reset();
 	element = jQuery( "<div>" )
 		.css( "height", 50 )

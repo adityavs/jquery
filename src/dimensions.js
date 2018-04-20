@@ -1,8 +1,11 @@
 define( [
 	"./core",
 	"./core/access",
+	"./var/isWindow",
 	"./css"
-], function( jQuery, access ) {
+], function( jQuery, access, isWindow ) {
+
+"use strict";
 
 // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
 jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
@@ -17,7 +20,7 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 			return access( this, function( elem, type, value ) {
 				var doc;
 
-				if ( jQuery.isWindow( elem ) ) {
+				if ( isWindow( elem ) ) {
 
 					// $( window ).outerWidth/Height return w/h including scrollbars (gh-1729)
 					return funcName.indexOf( "outer" ) === 0 ?

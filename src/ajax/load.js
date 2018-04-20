@@ -1,11 +1,15 @@
 define( [
 	"../core",
+	"../core/stripAndCollapse",
+	"../var/isFunction",
 	"../core/parseHTML",
 	"../ajax",
 	"../traversing",
 	"../manipulation",
 	"../selector"
-], function( jQuery ) {
+], function( jQuery, stripAndCollapse, isFunction ) {
+
+"use strict";
 
 /**
  * Load a url into a page
@@ -16,12 +20,12 @@ jQuery.fn.load = function( url, params, callback ) {
 		off = url.indexOf( " " );
 
 	if ( off > -1 ) {
-		selector = jQuery.trim( url.slice( off ) );
+		selector = stripAndCollapse( url.slice( off ) );
 		url = url.slice( 0, off );
 	}
 
 	// If it's a function
-	if ( jQuery.isFunction( params ) ) {
+	if ( isFunction( params ) ) {
 
 		// We assume that it's the callback
 		callback = params;
@@ -62,7 +66,7 @@ jQuery.fn.load = function( url, params, callback ) {
 		// If it fails, this function gets "jqXHR", "status", "error"
 		} ).always( callback && function( jqXHR, status ) {
 			self.each( function() {
-				callback.apply( self, response || [ jqXHR.responseText, status, jqXHR ] );
+				callback.apply( this, response || [ jqXHR.responseText, status, jqXHR ] );
 			} );
 		} );
 	}

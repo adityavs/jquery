@@ -18,10 +18,10 @@ function getComputedSupport( support ) {
 }
 
 if ( jQuery.css ) {
-	testIframeWithCallback(
+	testIframe(
 		"body background is not lost if set prior to loading jQuery (#9239)",
 		"support/bodyBackground.html",
-		function( color, support, assert ) {
+		function( assert, jQuery, window, document, color, support ) {
 			assert.expect( 2 );
 			var okValue = {
 				"#000000": true,
@@ -29,25 +29,27 @@ if ( jQuery.css ) {
 			};
 			assert.ok( okValue[ color ], "color was not reset (" + color + ")" );
 
-			assert.deepEqual( jQuery.extend( {}, support ), computedSupport, "Same support properties" );
+			assert.deepEqual( jQuery.extend( {}, support ), computedSupport,
+				"Same support properties" );
 		}
 	);
 }
 
 // This test checks CSP only for browsers with "Content-Security-Policy" header support
 // i.e. no old WebKit or old Firefox
-testIframeWithCallback(
+testIframe(
 	"Check CSP (https://developer.mozilla.org/en-US/docs/Security/CSP) restrictions",
-	"support/csp.php",
-	function( support, assert ) {
+	"mock.php?action=cspFrame",
+	function( assert, jQuery, window, document, support ) {
 		var done = assert.async();
 
 		assert.expect( 2 );
-		assert.deepEqual( jQuery.extend( {}, support ), computedSupport, "No violations of CSP polices" );
+		assert.deepEqual( jQuery.extend( {}, support ), computedSupport,
+			"No violations of CSP polices" );
 
-		supportjQuery.get( "data/support/csp.log" ).done( function( data ) {
+		supportjQuery.get( baseURL + "support/csp.log" ).done( function( data ) {
 			assert.equal( data, "", "No log request should be sent" );
-			supportjQuery.get( "data/support/csp-clean.php" ).done( done );
+			supportjQuery.get( baseURL + "mock.php?action=cspClean" ).done( done );
 		} );
 	}
 );
@@ -62,16 +64,17 @@ testIframeWithCallback(
 			"boxSizingReliable": true,
 			"checkClone": true,
 			"checkOn": true,
-			"clearCloneStyle": false,
+			"clearCloneStyle": true,
 			"cors": true,
 			"createHTMLDocument": true,
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": true,
 			"pixelPosition": true,
 			"radioValue": true,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
 	} else if ( /(msie 10\.0|trident\/7\.0)/i.test( userAgent ) ) {
 		expected = {
@@ -85,10 +88,11 @@ testIframeWithCallback(
 			"focusin": true,
 			"noCloneChecked": false,
 			"optSelected": false,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": true,
 			"pixelPosition": true,
 			"radioValue": false,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
 	} else if ( /msie 9\.0/i.test( userAgent ) ) {
 		expected = {
@@ -102,10 +106,11 @@ testIframeWithCallback(
 			"focusin": true,
 			"noCloneChecked": false,
 			"optSelected": false,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": true,
 			"pixelPosition": true,
 			"radioValue": false,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": "absolute"
 		};
 	} else if ( /chrome/i.test( userAgent ) ) {
 
@@ -122,12 +127,13 @@ testIframeWithCallback(
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": true,
 			"pixelPosition": true,
 			"radioValue": true,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
-	} else if ( /9\.0(\.\d+|) safari/i.test( userAgent ) ) {
+	} else if ( /\b11\.\d(\.\d+)* safari/i.test( userAgent ) ) {
 		expected = {
 			"ajax": true,
 			"boxSizingReliable": true,
@@ -139,12 +145,13 @@ testIframeWithCallback(
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
-			"pixelPosition": false,
+			"pixelBoxStyles": true,
+			"pixelPosition": true,
 			"radioValue": true,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
-	} else if ( /8\.0(\.\d+|) safari/i.test( userAgent ) ) {
+	} else if ( /\b(?:9|10)\.\d(\.\d+)* safari/i.test( userAgent ) ) {
 		expected = {
 			"ajax": true,
 			"boxSizingReliable": true,
@@ -152,14 +159,15 @@ testIframeWithCallback(
 			"checkOn": true,
 			"clearCloneStyle": true,
 			"cors": true,
-			"createHTMLDocument": false,
+			"createHTMLDocument": true,
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": false,
 			"pixelPosition": false,
 			"radioValue": true,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
 	} else if ( /firefox/i.test( userAgent ) ) {
 		expected = {
@@ -173,12 +181,13 @@ testIframeWithCallback(
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": true,
 			"pixelPosition": true,
 			"radioValue": true,
-			"reliableMarginLeft": false
+			"reliableMarginLeft": false,
+			"scrollboxSize": true
 		};
-	} else if ( /iphone os 9_/i.test( userAgent ) ) {
+	} else if ( /iphone os 11_/i.test( userAgent ) ) {
 		expected = {
 			"ajax": true,
 			"boxSizingReliable": true,
@@ -190,10 +199,29 @@ testIframeWithCallback(
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": true,
+			"pixelPosition": true,
+			"radioValue": true,
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
+		};
+	} else if ( /iphone os (?:9|10)_/i.test( userAgent ) ) {
+		expected = {
+			"ajax": true,
+			"boxSizingReliable": true,
+			"checkClone": true,
+			"checkOn": true,
+			"clearCloneStyle": true,
+			"cors": true,
+			"createHTMLDocument": true,
+			"focusin": false,
+			"noCloneChecked": true,
+			"optSelected": true,
+			"pixelBoxStyles": false,
 			"pixelPosition": false,
 			"radioValue": true,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
 	} else if ( /iphone os 8_/i.test( userAgent ) ) {
 		expected = {
@@ -207,10 +235,11 @@ testIframeWithCallback(
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": false,
 			"pixelPosition": false,
 			"radioValue": true,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
 	} else if ( /iphone os 7_/i.test( userAgent ) ) {
 		expected = {
@@ -224,10 +253,11 @@ testIframeWithCallback(
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": true,
+			"pixelBoxStyles": false,
 			"pixelPosition": false,
 			"radioValue": true,
-			"reliableMarginLeft": true
+			"reliableMarginLeft": true,
+			"scrollboxSize": true
 		};
 	} else if ( /android 4\.[0-3]/i.test( userAgent ) ) {
 		expected = {
@@ -241,10 +271,11 @@ testIframeWithCallback(
 			"focusin": false,
 			"noCloneChecked": true,
 			"optSelected": true,
-			"pixelMarginRight": false,
+			"pixelBoxStyles": false,
 			"pixelPosition": false,
 			"radioValue": true,
-			"reliableMarginLeft": false
+			"reliableMarginLeft": false,
+			"scrollboxSize": true
 		};
 	}
 
@@ -272,6 +303,6 @@ testIframeWithCallback(
 				assert.ok( true, "no ajax; skipping jQuery.support['" + i + "']" );
 			}
 		}
-	});
+	} );
 
 } )();
